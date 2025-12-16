@@ -7,4 +7,5 @@ services:
     tty: true
     ports:
       - "127.0.0.1:10043:10043"
+    command: ["python3", "/workspace/scripts/cc_server.py"]
 
