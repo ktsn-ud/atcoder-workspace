@@ -70,7 +70,6 @@ for fin in tests/*.in; do
   fi
 
   elapsed="$(cat "$time_log")"
-  echo "$elapsed"
   elapsed_ms=$(awk "BEGIN { printf \"%.0f\", $elapsed * 1000 }")
 
   # 末尾改行差は無視して比較
