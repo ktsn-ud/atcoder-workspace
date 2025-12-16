@@ -5,8 +5,10 @@ service="dev"
 usage() {
   cat <<USAGE
 Usage:
+  acc up
   acc test [cpp|cpy|pypy] [dir]
 Examples:
+  acc up
   acc test        # lang=cpp, dir=.
   acc test cpy    # dir=.
   acc test pypy contests/abc001/abc001_a
@@ -14,7 +16,10 @@ USAGE
 }
 
 # ホストのカレントディレクトリからコンテナの作業ディレクトリを作る
-host_script_abspath="$(cd $(dirname $0) && pwd)"
+script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+script_real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
+
+host_script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
 host_repo_root="$(cd "$host_script_abspath/.." && pwd)"
 current_abspath="$(pwd)"
 
@@ -47,6 +52,11 @@ test)
   esac
 
   exec docker compose exec -T "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
+  ;;
+up)
+  # scripts/dev.sh を repo root を cwd にして実行
+  cd -- "$host_repo_root"
+  exec "$host_repo_root/scripts/dev.sh" "$@"
   ;;
 *)
   usage
