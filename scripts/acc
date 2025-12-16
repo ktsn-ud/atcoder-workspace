@@ -1,0 +1,55 @@
+#!/bin/bash
+
+service="dev"
+
+usage() {
+  cat <<USAGE
+Usage:
+  acc test [cpp|cpy|pypy] [dir]
+Examples:
+  acc test        # lang=cpp, dir=.
+  acc test cpy    # dir=.
+  acc test pypy contests/abc001/abc001_a
+USAGE
+}
+
+# ホストのカレントディレクトリからコンテナの作業ディレクトリを作る
+host_script_abspath="$(cd $(dirname $0) && pwd)"
+host_repo_root="$(cd "$host_script_abspath/.." && pwd)"
+current_abspath="$(pwd)"
+
+if [[ "$current_abspath" == "$host_repo_root" ]]; then
+  relpath="."
+elif [[ "$current_abspath" == "$host_repo_root/"* ]]; then
+  relpath="${current_abspath#"$host_repo_root"/}"
+else
+  echo "[ac] current directory is outside repo" >&2
+  exit 2
+fi
+
+container_work_abspath="/workspace/"${relpath}""
+
+cmd="${1:-}"
+if [ "$#" -gt 0 ]; then
+  shift
+fi
+
+case "$cmd" in
+test)
+  lang="${1:-cpp}"
+
+  case "$lang" in
+  cpp | cpy | pypy) ;;
+  *)
+    echo "unknown lang: $lang" >&2
+    exit 2
+    ;;
+  esac
+
+  exec docker compose exec -T "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
+  ;;
+*)
+  usage
+  exit 2
+  ;;
+esac
