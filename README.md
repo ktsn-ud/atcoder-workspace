@@ -14,6 +14,8 @@ atcoder-workspace
   └── README.md
 ```
 
+`acc` コマンドにより、コンテナ起動やテスト実行を含むすべての操作を **ホスト環境** から行います。
+
 ## Requirement
 
 - [Competitive Companion](https://github.com/jmerle/competitive-companion)
