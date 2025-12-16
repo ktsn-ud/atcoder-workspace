@@ -50,21 +50,27 @@ for fin in tests/*.in; do
   time_log="$(mktemp)"
 
   # 実行
-  if ! timeout 4s /usr/bin/time -f '%e' -o "$time_log" \
+  status=0
+  if timeout 4s /usr/bin/time -f '%e' -o "$time_log" \
     "${run_cmd[@]}" <"$fin" >"$out_actual"; then
+    status=0
+  else
     status=$?
+  fi
 
+  if [ "$status" -ne 0 ]; then
     if [ "$status" -eq 124 ]; then
       echo "TLE : $(basename "$fin") (>4000 ms)"
     else
       echo "RE  : $(basename "$fin") (exit=$status)"
       failed=$((failed + 1))
-      rm -f "$out_actual" "$time_log"
-      continue
     fi
+    rm -f "$out_actual" "$time_log"
+    continue
   fi
 
   elapsed="$(cat "$time_log")"
+  echo "$elapsed"
   elapsed_ms=$(awk "BEGIN { printf \"%.0f\", $elapsed * 1000 }")
 
   # 末尾改行差は無視して比較
