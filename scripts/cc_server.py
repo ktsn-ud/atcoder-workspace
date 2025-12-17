@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import shutil
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 
@@ -13,21 +12,38 @@ ATCODER_TASK_RE = re.compile(r"^/contests/([^/]+)/tasks/([^/]+)$")
 TEMPLATE_DIR = "/workspace/template"
 
 
-def copy_if_not_exists(src: str, dst: str):
-    if not os.path.exists(dst):
-        shutil.copyfile(src, dst)
+def comment_prefix_for(path: str) -> str:
+    if path.endswith("py"):
+        return "# "
+    if path.endswith("cpp"):
+        return "// "
+    raise ValueError(f"Unknown file type: {path}")
 
 
-def ensure_problem_dir(contest_id: str, task_id: str) -> str:
+def copy_template_with_header_if_not_exists(src: str, dst: str, url: str):
+    if os.path.exists(dst):
+        return
+
+    prefix = comment_prefix_for(dst)
+    header = f"{prefix}{url}\n\n"
+
+    with open(src, "r", encoding="utf-8") as rf:
+        content = rf.read()
+    with open(dst, "w", encoding="utf-8", newline="\n") as wf:
+        wf.write(header)
+        wf.write(content)
+
+
+def ensure_problem_dir(contest_id: str, task_id: str, url: str) -> str:
     dir = os.path.join(WORKDIR, contest_id, task_id)
     os.makedirs(os.path.join(dir, "tests"), exist_ok=True)
 
-    copy_if_not_exists(
-        os.path.join(TEMPLATE_DIR, "main.py"), os.path.join(dir, "main.py")
+    copy_template_with_header_if_not_exists(
+        os.path.join(TEMPLATE_DIR, "main.py"), os.path.join(dir, "main.py"), url
     )
 
-    copy_if_not_exists(
-        os.path.join(TEMPLATE_DIR, "main.cpp"), os.path.join(dir, "main.cpp")
+    copy_template_with_header_if_not_exists(
+        os.path.join(TEMPLATE_DIR, "main.cpp"), os.path.join(dir, "main.cpp"), url
     )
 
     return dir
@@ -79,7 +95,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Tests must be a list")
 
             contest_id, task_id = parse_atcoder_ids(url)
-            problem_dir = ensure_problem_dir(contest_id, task_id)
+            problem_dir = ensure_problem_dir(contest_id, task_id, url)
             n_tests = write_tests(problem_dir, tests)
 
             msg = {
