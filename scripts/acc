@@ -7,11 +7,15 @@ usage() {
 Usage:
   acc up
   acc test [cpp|cpy|pypy] [dir]
+  acc logs server [option]
 Examples:
   acc up
   acc test        # lang=cpp, dir=.
   acc test cpy    # dir=.
   acc test pypy contests/abc001/abc001_a
+  acc logs server
+  acc logs server -f          # realtime
+  acc logs server --tail=20   # only last 20 lines
 USAGE
 }
 
@@ -57,6 +61,22 @@ up)
   # scripts/dev.sh を repo root を cwd にして実行
   cd -- "$host_repo_root"
   exec "$host_repo_root/scripts/dev.sh" "$@"
+  ;;
+logs)
+  subcmd="${1:-}"
+  if [ "$#" -gt 0 ]; then
+    shift
+  fi
+
+  case "$subcmd" in
+  server)
+    exec docker compose logs "$@" dev
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+  esac
   ;;
 *)
   usage
