@@ -97,8 +97,8 @@ for fin in tests/*.in; do
   elapsed_ms=$(awk "BEGIN { printf \"%.0f\", $elapsed * 1000 }")
 
   # 末尾改行差は無視して比較
-  if diff -u <(sed -e 's/[[:space:]]*s//' "$fout_expected") \
-    <(sed -e 's/[[:space:]]*s//' "$out_actual") >/dev/null; then
+  if diff -u <(awk '{print}' "$fout_expected") \
+    <(awk '{print}' "$out_actual") >/dev/null; then
     printf "%s  : $(basename "$fin") (%d ms)\n" "$(style_tag AC green)" "$elapsed_ms"
 
   else
