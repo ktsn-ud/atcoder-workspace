@@ -48,7 +48,7 @@ help | -h)
   usage
   exit 0
   ;;
-test)
+test | t)
   lang="${1:-cpp}"
 
   case "$lang" in
@@ -61,19 +61,19 @@ test)
 
   exec docker compose exec -T "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
   ;;
-up)
+up | u)
   # scripts/dev.sh を repo root を cwd にして実行
   cd -- "$host_repo_root"
   exec "$host_repo_root/scripts/dev.sh" "$@"
   ;;
-logs)
+logs | l)
   subcmd="${1:-}"
   if [ "$#" -gt 0 ]; then
     shift
   fi
 
   case "$subcmd" in
-  server)
+  server | s)
     exec docker compose logs "$@" dev
     ;;
   *)
