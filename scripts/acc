@@ -44,6 +44,10 @@ if [ "$#" -gt 0 ]; then
 fi
 
 case "$cmd" in
+help | -h)
+  usage
+  exit 0
+  ;;
 test)
   lang="${1:-cpp}"
 
