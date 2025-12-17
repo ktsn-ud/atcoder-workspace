@@ -8,6 +8,7 @@ Usage:
   acc up
   acc test [cpp|cpy|pypy] [dir]
   acc logs server [option]
+  acc yank [filename]
 Examples:
   acc up
   acc test        # lang=cpp, dir=.
@@ -16,6 +17,8 @@ Examples:
   acc logs server
   acc logs server -f          # realtime
   acc logs server --tail=20   # only last 20 lines
+  acc yank        # filename=main.cpp
+  acc yank main.py
 USAGE
 }
 
@@ -81,6 +84,26 @@ logs | l)
     exit 2
     ;;
   esac
+  ;;
+yank | y)
+  file="${1:-main.cpp}"
+
+  tmp="$(mktemp)"
+  cat "$file" >"$tmp"
+
+  if cat "$tmp" | pbcopy; then
+    lines="$(wc -l <"$tmp" | tr -d ' ')"
+    echo "✔ copied to clipboard: $file ($lines lines)"
+    echo "---- preview ----"
+    sed -n '1,5p' "$tmp"
+    [ "$lines" -gt 5 ] && echo "..."
+  else
+    echo "✖ failed to copy to clipboard" >&2
+    rm -f "$tmp"
+    exit 1
+  fi
+
+  rm -f "$tmp"
   ;;
 *)
   usage
