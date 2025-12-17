@@ -62,7 +62,7 @@ test | t)
     ;;
   esac
 
-  exec docker compose exec -T "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
+  exec docker compose exec -t "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
   ;;
 up | u)
   # scripts/dev.sh を repo root を cwd にして実行

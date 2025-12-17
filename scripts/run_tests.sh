@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+style_tag() {
+  local text="$1"
+  local color="${2:-default}" # red|green|default
+  local weight="${3:-normal}" # bold|normal
+
+  local code=""
+  case "$color" in
+  red) code="31" ;;
+  green) code="32" ;;
+  default) code="" ;;
+  *) code="" ;;
+  esac
+
+  local sgr=""
+  if [[ "$weight" == "bold" ]]; then
+    sgr="1"
+  fi
+  if [[ -n "$code" ]]; then
+    [[ -n "$sgr" ]] && sgr="${sgr};${code}" || sgr="${code}"
+  fi
+
+  printf '\033[%sm%s\033[0m' "$sgr" "$text"
+}
+
 lang="${1:-cpp}"
 work="${2:-.}"
 cd "$work"
@@ -60,11 +84,11 @@ for fin in tests/*.in; do
 
   if [ "$status" -ne 0 ]; then
     if [ "$status" -eq 124 ]; then
-      echo "TLE : $(basename "$fin") (>4000 ms)"
+      printf "%s : %s (>4000 ms)\n" "$(style_tag TLE red)" "$(basename "$fin")"
     else
-      echo "RE  : $(basename "$fin") (exit=$status)"
-      failed=$((failed + 1))
+      printf "%s  : %s (exit=$status)\n" "$(style_tag RE red)" "$(basename "$fin")"
     fi
+    failed=$((failed + 1))
     rm -f "$out_actual" "$time_log"
     continue
   fi
@@ -75,10 +99,10 @@ for fin in tests/*.in; do
   # 末尾改行差は無視して比較
   if diff -u <(sed -e 's/[[:space:]]*s//' "$fout_expected") \
     <(sed -e 's/[[:space:]]*s//' "$out_actual") >/dev/null; then
-    printf "OK  : $(basename "$fin") (%d ms)\n" "$elapsed_ms"
+    printf "%s  : $(basename "$fin") (%d ms)\n" "$(style_tag AC green)" "$elapsed_ms"
 
   else
-    printf "WA  : $(basename "$fin") (%d ms)\n" "$elapsed_ms"
+    printf "%s  : $(basename "$fin") (%d ms)\n" "$(style_tag WA red)" "$elapsed_ms"
     echo "--- expected ---"
     if [ -s "$fout_expected" ]; then
       cat "$fout_expected"
@@ -105,9 +129,9 @@ done
 for f in "${cleanup[@]}"; do rm -f "$f"; done
 
 if [ "$failed" -eq 0 ]; then
-  echo "ALL PASSED ($i tests)"
+  printf "%s\n" "$(style_tag "ALL PASSED ($i tests)" green bold)"
   exit 0
 else
-  echo "SOME FAILED ($failed tests)"
+  printf "%s\n" "$(style_tag "FAILED ($failed/$i tests failed)" red bold)"
   exit 0
 fi
