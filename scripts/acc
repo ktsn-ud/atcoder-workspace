@@ -5,18 +5,15 @@ service="dev"
 usage() {
   cat <<USAGE
 Usage:
-  acc up
-  acc test [cpp|cpy|pypy] [dir]
-  acc logs server [option]
+  acc init
+  acc test [cpp|py] [dir]
   acc yank [filename]
 Examples:
+  acc init
   acc up
   acc test        # lang=cpp, dir=.
-  acc test cpy    # dir=.
-  acc test pypy contests/abc001/abc001_a
-  acc logs server
-  acc logs server -f          # realtime
-  acc logs server --tail=20   # only last 20 lines
+  acc test py     # dir=.
+  acc test py contests/abc001/abc001_a
   acc yank        # filename=main.cpp
   acc yank main.py
 USAGE
@@ -26,8 +23,8 @@ USAGE
 script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 script_real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
 
-host_script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
-host_repo_root="$(cd "$host_script_abspath/.." && pwd)"
+script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
+repo_root="$(cd "$script_abspath/.." && pwd)"
 current_abspath="$(pwd)"
 
 if [[ "$current_abspath" == "$host_repo_root" ]]; then
@@ -39,51 +36,34 @@ else
   exit 2
 fi
 
-container_work_abspath="/workspace/"${relpath}""
-
 cmd="${1:-}"
 if [ "$#" -gt 0 ]; then
   shift
 fi
 
 case "$cmd" in
-help | -h)
+help | -h | h)
   usage
   exit 0
+  ;;
+init | i)
+  exec $repo_root/scripts/init.sh
   ;;
 test | t)
   lang="${1:-cpp}"
 
   case "$lang" in
-  cpp | cpy | pypy) ;;
+  cpp | py) ;;
   *)
     echo "unknown lang: $lang" >&2
     exit 2
     ;;
   esac
 
-  exec docker compose exec -t "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
+  exec $repo_root/scripts/run_tests.sh "$lang"
   ;;
 up | u)
-  # scripts/dev.sh を repo root を cwd にして実行
-  cd -- "$host_repo_root"
-  exec "$host_repo_root/scripts/dev.sh" "$@"
-  ;;
-logs | l)
-  subcmd="${1:-}"
-  if [ "$#" -gt 0 ]; then
-    shift
-  fi
-
-  case "$subcmd" in
-  server | s)
-    exec docker compose logs "$@" dev
-    ;;
-  *)
-    usage
-    exit 2
-    ;;
-  esac
+  exec python3 $repo_root/scripts/cc_server.py
   ;;
 yank | y)
   file="${1:-main.cpp}"

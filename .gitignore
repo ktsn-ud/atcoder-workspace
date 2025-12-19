@@ -13,6 +13,7 @@ contests/
 *~
 .vscode/
 .idea/
+.config
 
 # =========================
 # Python
@@ -30,6 +31,7 @@ a.out
 *.out
 *.exe
 *.obj
+.include
 
 # =========================
 # Runtime / Temp

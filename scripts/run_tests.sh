@@ -1,5 +1,19 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
+
+# プロジェクトのルートディレクトリを特定
+script_real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
+script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
+repo_root="$(cd "$script_abspath/.." && pwd)"
+
+# envファイルを読み込む
+ACC_ENV_FILE="$repo_root/.config/env"
+if [[ -f "$ACC_ENV_FILE" ]]; then
+  source "$ACC_ENV_FILE"
+fi
+
+: "${CXX:=g++}"
+: "${CXXSTD:=gnu++23}"
 
 style_tag() {
   local text="$1"
@@ -38,12 +52,10 @@ fi
 run_cmd=()
 cleanup=()
 
-if [ "$lang" = "cpy" ]; then
+if [ "$lang" = "py" ]; then
   run_cmd=(python3 main.py)
-elif [ "$lang" = "pypy" ]; then
-  run_cmd=(pypy3 main.py)
 elif [ "$lang" = "cpp" ]; then
-  g++ -std=gnu++23 -O1 -Wall -Wextra -o a.out main.cpp
+  "$CXX" -std="$CXXSTD" -I"$repo_root/.include" -O1 -Wall -Wextra -o a.out main.cpp
   run_cmd=(./a.out)
   cleanup+=(a.out)
 else
@@ -54,6 +66,17 @@ fi
 # テスト
 failed=0
 i=0
+
+# timeoutコマンドを特定する
+if command -v timeout >/dev/null 2>&1; then
+  TIMEOUT=timeout
+elif command -v gtimeout >/dev/null 2>&1; then
+  TIMEOUT=gtimeout
+else
+  echo "timeout command not found" >&2
+  echo "hint: 'brew install coreutils' for macOS." >&2
+  exit 1
+fi
 
 for fin in tests/*.in; do
   [ -e "$fin" ] || {
@@ -73,10 +96,9 @@ for fin in tests/*.in; do
   out_actual="$(mktemp)"
   time_log="$(mktemp)"
 
-  # 実行
   status=0
-  if timeout 4s /usr/bin/time -f '%e' -o "$time_log" \
-    "${run_cmd[@]}" <"$fin" >"$out_actual"; then
+  if $TIMEOUT 4s /usr/bin/time -p "${run_cmd[@]}" \
+    <"$fin" >"$out_actual" 2>"$time_log"; then
     status=0
   else
     status=$?
@@ -87,6 +109,10 @@ for fin in tests/*.in; do
       printf "%s : %s (>4000 ms)\n" "$(style_tag TLE red)" "$(basename "$fin")"
     else
       printf "%s  : %s (exit=$status)\n" "$(style_tag RE red)" "$(basename "$fin")"
+    fi
+    if [ -s "$time_log" ]; then
+      # エラーを含む出力
+      cat "$time_log" >&2
     fi
     failed=$((failed + 1))
     rm -f "$out_actual" "$time_log"
@@ -126,7 +152,9 @@ for fin in tests/*.in; do
 done
 
 # 後始末
-for f in "${cleanup[@]}"; do rm -f "$f"; done
+if ((${#cleanup[@]})); then
+  for f in "${cleanup[@]}"; do rm -f "$f"; done
+fi
 
 if [ "$failed" -eq 0 ]; then
   printf "%s\n" "$(style_tag "ALL PASSED ($i tests)" green bold)"
