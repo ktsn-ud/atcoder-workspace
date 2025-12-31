@@ -26,6 +26,13 @@ RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linu
   && rm -rf /opt/nvim-linux-arm64 \
   && tar -C /opt -xzf nvim-linux-arm64.tar.gz
 
+# Precompile bits/stdc++.h for faster compilation
+RUN STDC_HEADER_PATH=$(find /usr/include -name stdc++.h 2>/dev/null | head -1) && \
+  if [ -n "$STDC_HEADER_PATH" ]; then \
+    g++ -std=gnu++23 -O1 -x c++-header "$STDC_HEADER_PATH" -o "${STDC_HEADER_PATH}.gch" && \
+    echo "Precompiled: $STDC_HEADER_PATH"; \
+  fi
+
 # bash config
 COPY .bashrc /root/.bashrc
 
