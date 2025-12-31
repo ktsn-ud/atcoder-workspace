@@ -10,10 +10,8 @@ cleanup_and_exit() {
 
 trap cleanup_and_exit INT TERM
 
-# プロジェクトのルートディレクトリを特定
-script_real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
-script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
-repo_root="$(cd "$script_abspath/.." && pwd)"
+# コンテナ内のリポジトリルート
+repo_root="/workspace"
 
 # envファイルを読み込む
 ACC_ENV_FILE="$repo_root/.config/env"

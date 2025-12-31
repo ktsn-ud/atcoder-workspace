@@ -1,41 +1,30 @@
 #!/bin/bash
 
-service="dev"
-
 usage() {
   cat <<USAGE
 Usage:
-  acc up
   acc test [cpp|cpy|pypy] [dir]
-  acc logs server [option]
   acc yank [filename]
 Examples:
-  acc up
   acc test        # lang=cpp, dir=.
   acc test cpy    # dir=.
   acc test pypy contests/abc001/abc001_a
-  acc logs server
-  acc logs server -f          # realtime
-  acc logs server --tail=20   # only last 20 lines
   acc yank        # filename=main.cpp
   acc yank main.py
 USAGE
 }
 
-# ホストのカレントディレクトリからコンテナの作業ディレクトリを作る
-script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
-script_real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
+# コンテナ内のカレントディレクトリを取得
+current_dir="$(pwd)"
+repo_root="/workspace"
 
-host_script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
-host_repo_root="$(cd "$host_script_abspath/.." && pwd)"
-current_abspath="$(pwd)"
-
-if [[ "$current_abspath" == "$host_repo_root" ]]; then
+# カレントディレクトリがリポジトリ内か確認
+if [[ "$current_dir" == "$repo_root" ]]; then
   relpath="."
-elif [[ "$current_abspath" == "$host_repo_root/"* ]]; then
-  relpath="${current_abspath#"$host_repo_root"/}"
+elif [[ "$current_dir" == "$repo_root/"* ]]; then
+  relpath="${current_dir#"$repo_root"/}"
 else
-  echo "[ac] current directory is outside repo" >&2
+  echo "[acc] current directory is outside repo" >&2
   exit 2
 fi
 
@@ -62,28 +51,7 @@ test | t)
     ;;
   esac
 
-  exec docker compose exec -t "$service" /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
-  ;;
-up | u)
-  # scripts/dev.sh を repo root を cwd にして実行
-  cd -- "$host_repo_root"
-  exec "$host_repo_root/scripts/dev.sh" "$@"
-  ;;
-logs | l)
-  subcmd="${1:-}"
-  if [ "$#" -gt 0 ]; then
-    shift
-  fi
-
-  case "$subcmd" in
-  server | s)
-    exec docker compose logs "$@" dev
-    ;;
-  *)
-    usage
-    exit 2
-    ;;
-  esac
+  exec /workspace/scripts/run_tests.sh "$lang" "$container_work_abspath"
   ;;
 yank | y)
   file="${1:-main.cpp}"
