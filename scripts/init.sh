@@ -2,6 +2,15 @@
 
 set -euo pipefail
 
+cleanup_and_exit() {
+  echo
+  echo "Interrupted" >&2
+  kill 0 2>/dev/null || true
+  exit 130
+}
+
+trap cleanup_and_exit INT TERM
+
 # 言語インストール確認
 echo "[acc-init] checking language status..."
 

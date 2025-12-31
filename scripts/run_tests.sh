@@ -1,6 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+cleanup_and_exit() {
+  echo
+  echo "Interrupted" >&2
+  kill 0 2>/dev/null || true
+  exit 130
+}
+
+trap cleanup_and_exit INT TERM
+
 # プロジェクトのルートディレクトリを特定
 script_real="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "${BASH_SOURCE[0]}")"
 script_abspath="$(cd "$(dirname "$script_real")" && pwd)"
