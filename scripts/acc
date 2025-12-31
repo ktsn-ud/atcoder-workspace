@@ -14,6 +14,12 @@ Examples:
 USAGE
 }
 
+osc52_copy() {
+  local data
+  data="$(base64 | tr -d '\n')"
+  printf '\033]52;c;%s\a' "$data"
+}
+
 # コンテナ内のカレントディレクトリを取得
 current_dir="$(pwd)"
 repo_root="/workspace"
@@ -59,7 +65,7 @@ yank | y)
   tmp="$(mktemp)"
   cat "$file" >"$tmp"
 
-  if cat "$tmp" | pbcopy; then
+  if cat "$tmp" | osc52_copy; then
     lines="$(wc -l <"$tmp" | tr -d ' ')"
     echo "✔ copied to clipboard: $file ($lines lines)"
     echo "---- preview ----"

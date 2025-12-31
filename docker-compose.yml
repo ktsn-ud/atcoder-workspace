@@ -1,11 +1,21 @@
 services:
   dev:
+    platform: linux/arm64
     build: .
     working_dir: /workspace
     volumes:
       - .:/workspace
+      - ${HOME}/.config/nvim:/root/.config/nvim
+      - nvim_data:/root/.local/share/nvim
+      - nvim_state:/root/.local/state/nvim
+      - nvim_cache:/root/.cache/nvim
     tty: true
     ports:
       - "127.0.0.1:10043:10043"
     command: ["python3", "/workspace/scripts/cc_server.py"]
+
+volumes:
+  nvim_data:
+  nvim_state:
+  nvim_cache:
 
