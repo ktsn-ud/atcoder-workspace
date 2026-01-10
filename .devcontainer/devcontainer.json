@@ -11,9 +11,11 @@
         "ms-vscode.cmake-tools",
         "ms-python.python",
         "ms-python.debugpy",
+        "astral-sh.ty",
         "charliermarsh.ruff"
       ],
       "settings": {
+        "python.languageServer": "None",
         "python.defaultInterpreterPath": "/usr/bin/python3",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,
