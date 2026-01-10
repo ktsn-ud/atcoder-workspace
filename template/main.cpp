@@ -41,12 +41,12 @@ inline void print_vec(const vector<T> &v, bool split_line = false) {
 
 template <class T, class U>
 ll pow(T a, U b) {
-    return pow_ll((ll)a, (ll)b);
+    return _detail::pow_ll((ll)a, (ll)b);
 }
 
 template <class T, class U, class V>
 ll pow(T a, U b, V mod) {
-    return pow_ll((ll)a, (ll)b, (ll)mod);
+    return _detail::pow_ll((ll)a, (ll)b, (ll)mod);
 }
 
 }  // namespace my
