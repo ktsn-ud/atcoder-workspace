@@ -4,7 +4,6 @@
   "service": "dev",
   "workspaceFolder": "/workspace",
   "remoteUser": "root",
-  "postCreateCommand": "pip install --upgrade pip",
   "customizations": {
     "vscode": {
       "extensions": [
