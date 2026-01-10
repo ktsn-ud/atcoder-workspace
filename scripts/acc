@@ -11,6 +11,8 @@ Examples:
   acc test pypy contests/abc001/abc001_a
   acc yank        # filename=main.cpp
   acc yank main.py
+  acc open        # ext=cpp
+  acc open py
 USAGE
 }
 
@@ -78,6 +80,22 @@ yank | y)
   fi
 
   rm -f "$tmp"
+  ;;
+open | o)
+  ext="${1:-cpp}"
+
+  case "$ext" in
+  cpp)
+    code main.cpp
+    ;;
+  py)
+    code main.py
+    ;;
+  *)
+    echo "unknown extension: $ext" >&2
+    exit 2
+    ;;
+  esac
   ;;
 *)
   usage
