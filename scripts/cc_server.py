@@ -35,7 +35,13 @@ def copy_template_with_header_if_not_exists(src: str, dst: str, url: str):
 
 
 def ensure_problem_dir(contest_id: str, task_id: str, url: str) -> str:
-    dir = os.path.join(WORKDIR, contest_id, task_id)
+    # task_idが<contest_id>_*の形式なら*部分だけを取り出す
+    if task_id.startswith(f"{contest_id}_"):
+        dir_name = task_id[len(contest_id) + 1:]
+    else:
+        dir_name = task_id
+
+    dir = os.path.join(WORKDIR, contest_id, dir_name)
     os.makedirs(os.path.join(dir, "tests"), exist_ok=True)
 
     copy_template_with_header_if_not_exists(
