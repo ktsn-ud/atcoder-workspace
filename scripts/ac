@@ -3,16 +3,16 @@
 usage() {
   cat <<USAGE
 Usage:
-  acc test [cpp|cpy|pypy] [dir]
-  acc yank [filename]
+  ac test [cpp|cpy|pypy] [dir]
+  ac yank [filename]
 Examples:
-  acc test        # lang=cpp, dir=.
-  acc test cpy    # dir=.
-  acc test pypy contests/abc001/abc001_a
-  acc yank        # filename=main.cpp
-  acc yank main.py
-  acc open        # ext=cpp
-  acc open py
+  ac test         # lang=cpp, dir=.
+  ac test cpy     # dir=.
+  ac test pypy contests/abc001/abc001_a
+  ac yank         # filename=main.cpp
+  ac yank main.py
+  ac open         # ext=cpp
+  ac open py
 USAGE
 }
 
