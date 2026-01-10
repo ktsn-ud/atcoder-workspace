@@ -12,10 +12,7 @@
         "ms-vscode.cmake-tools",
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "ms-python.debugpy",
-        "vim.vim",
-        "eamodio.gitlens",
-        "GitHub.copilot"
+        "ms-python.debugpy"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/bin/python3",
