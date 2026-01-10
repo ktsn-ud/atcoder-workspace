@@ -1,0 +1,13 @@
+{
+    "github.copilot.enable": {
+        "*": false
+    },
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    },
+    "[cpp]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    }
+}

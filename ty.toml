@@ -1,0 +1,7 @@
+[environment]
+python = "./.venv"
+python-platform = "linux"
+
+[src]
+respect-ignore-files = false
+include = ["contests/**"]

@@ -23,5 +23,16 @@ atcoder-workspace
 
 ## Usage
 準備中
+
+### Python 仮想環境（venv）運用
+- コンテナ作成後に `/workspace/.venv` を自動作成し、`pip`/`pylint` を導入します（devcontainer の `postCreateCommand`）。
+- VS Code は `python.defaultInterpreterPath` を `/workspace/.venv/bin/python` に設定済みです。
+- テスト実行スクリプトは venv が存在すればそれを優先して実行します（`scripts/run_tests.sh`）。
+- 端末で手動利用する場合は、必要に応じて下記で有効化してください：
+
+```bash
+source /workspace/.venv/bin/activate
+python --version
+```
 ```
 ```

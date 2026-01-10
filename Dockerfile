@@ -6,7 +6,7 @@ ENV CC_PORT=10043
 RUN apt-get update && apt-get install -y --no-install-recommends \
   nodejs npm \
   ca-certificates curl git \
-  python3 python3-pip \
+  python3 python3-pip python3-venv \
   pypy3 \
   g++ make clangd \
   time \
@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ripgrep \
   fd-find \
   && rm -rf /var/lib/apt/lists/*
+
+# install ty (type checker and language server for python)
+RUN curl -LsSf https://astral.sh/ty/install.sh | sh
 
 # install ac-library
 RUN git clone --depth 1 https://github.com/atcoder/ac-library.git /opt/ac-library \
@@ -37,6 +40,7 @@ RUN STDC_HEADER_PATH=$(find /usr/include -name stdc++.h 2>/dev/null | head -1) &
 COPY .bashrc /root/.bashrc
 
 ENV PATH="/opt/nvim-linux-arm64/bin:/workspace/scripts:${PATH}"
+ENV PYTHONPATH="/workspace/ac-library-python:${PYTHONPATH}"
 
 WORKDIR /workspace
 
