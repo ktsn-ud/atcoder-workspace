@@ -40,6 +40,7 @@ RUN STDC_HEADER_PATH=$(find /usr/include -name stdc++.h 2>/dev/null | head -1) &
 COPY .bashrc /root/.bashrc
 
 ENV PATH="/opt/nvim-linux-arm64/bin:/workspace/scripts:${PATH}"
+ENV PYTHONPATH="/workspace/ac-library-python:${PYTHONPATH}"
 
 WORKDIR /workspace
 
