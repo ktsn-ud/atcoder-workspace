@@ -10,7 +10,8 @@
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "ms-python.python",
-        "ms-python.debugpy"
+        "ms-python.debugpy",
+        "charliermarsh.ruff"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/bin/python3",
@@ -25,7 +26,7 @@
           "editor.formatOnSave": true
         },
         "[python]": {
-          "editor.defaultFormatter": "ms-python.python",
+          "editor.defaultFormatter": "charliermarsh.ruff",
           "editor.formatOnSave": true
         }
       }
