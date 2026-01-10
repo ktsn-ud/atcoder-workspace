@@ -60,7 +60,12 @@ run_cmd=()
 cleanup=()
 
 if [ "$lang" = "cpy" ]; then
-  run_cmd=(python3 main.py)
+  # Prefer venv Python if available
+  if [ -x "/workspace/.venv/bin/python" ]; then
+    run_cmd=(/workspace/.venv/bin/python main.py)
+  else
+    run_cmd=(python3 main.py)
+  fi
 elif [ "$lang" = "pypy" ]; then
   run_cmd=(pypy3 main.py)
 elif [ "$lang" = "cpp" ]; then
